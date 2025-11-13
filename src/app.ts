@@ -12,6 +12,11 @@ import {
   listIssuesFromSprint,
   listIssuesFromSprintInputSchema,
 } from "./tools/list-issues-from-sprint.ts";
+import {
+  LIST_ISSUES_FROM_SPRINT_CSV_TOOL,
+  listIssuesFromSprintCsv,
+  listIssuesFromSprintCsvInputSchema,
+} from "./tools/list-issues-from-sprint-csv.ts";
 import { VERSION } from "./constants.js";
 import {
   LIST_PROJECTS_TOOL,
@@ -42,6 +47,7 @@ export const tools = [
   LIST_BOARDS_TOOL,
   LIST_SPRINTS_FROM_BOARD_TOOL,
   LIST_ISSUES_FROM_SPRINT_TOOL,
+  LIST_ISSUES_FROM_SPRINT_CSV_TOOL,
 
   // create
   CREATE_ISSUE_TOOL,
@@ -190,6 +196,31 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         content: [
           { type: "text", text: JSON.stringify(result.value, null, 2) },
         ],
+      };
+    }
+
+    if (name === LIST_ISSUES_FROM_SPRINT_CSV_TOOL.name) {
+      const input = listIssuesFromSprintCsvInputSchema.safeParse(args);
+
+      if (!input.success) {
+        return {
+          isError: true,
+          content: [{ type: "text", text: "Invalid input" }],
+        };
+      }
+
+      const result = await listIssuesFromSprintCsv(input.data);
+
+      if (result.isErr()) {
+        console.error(result.error.message);
+        return {
+          isError: true,
+          content: [{ type: "text", text: "An error occurred" }],
+        };
+      }
+
+      return {
+        content: [{ type: "text", text: result.value }],
       };
     }
 
