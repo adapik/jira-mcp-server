@@ -2,6 +2,18 @@
 
 ![NPM Version](https://img.shields.io/npm/v/%40parassolanki%2Fjira-mcp-server) ![NPM Downloads](https://img.shields.io/npm/dw/%40parassolanki%2Fjira-mcp-server) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+## Problem This Fork Resolves
+
+When working with large sprints containing many issues, the standard `list_issues_from_sprint` tool returns full JSON responses that consume significant tokens, especially when LLMs need to analyze multiple sprints or boards. This fork adds a `list_issues_from_sprint_csv` tool that returns data in a compact CSV format, dramatically reducing token usage while preserving essential information (issue key, summary, status, assignee, estimates, fix versions, and hotfix labels).
+
+**Key benefits:**
+- Reduced token consumption for sprint issue queries
+- Faster response times due to smaller payloads
+- More cost-effective for large-scale sprint analysis
+- Maintains all critical issue information in a structured format
+
+---
+
 A [Model Context Protocol](https://github.com/modelcontextprotocol) Server for Jira.
 
 Provides integration with Jira through MCP, allowing LLMs to interact with it.
