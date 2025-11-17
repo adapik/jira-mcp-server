@@ -9,6 +9,10 @@ import { env } from "../env.js";
 
 export const listSprintsFromBoardInputSchema = z.object({
   boardId: z.string().describe("The ID of the board"),
+  state: z
+    .enum(["active", "closed", "future"])
+    .optional()
+    .describe("Filter sprints by state (active, closed, or future)"),
   maxResults: z
     .number()
     .optional()
@@ -21,7 +25,7 @@ export const listSprintsFromBoardInputSchema = z.object({
 
 export const LIST_SPRINTS_FROM_BOARD_TOOL: Tool = {
   name: "list_sprints_from_board",
-  description: "List sprints from a board",
+  description: "List sprints from a board. Can filter by state (active, closed, or future)",
   inputSchema: zodToJsonSchema(
     listSprintsFromBoardInputSchema,
   ) as Tool["inputSchema"],
@@ -41,6 +45,8 @@ export async function listSprintsFromBoard(input: ListSprintsFromBoardInput) {
 
   if (input.maxResults)
     url.searchParams.set("maxResults", input.maxResults.toString());
+
+  if (input.state) url.searchParams.set("state", input.state);
 
   const json = await $jiraJson(url.toString());
 

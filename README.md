@@ -2,14 +2,19 @@
 
 ![NPM Version](https://img.shields.io/npm/v/%40parassolanki%2Fjira-mcp-server) ![NPM Downloads](https://img.shields.io/npm/dw/%40parassolanki%2Fjira-mcp-server) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-## Problem This Fork Resolves
+## Problems This Fork Resolves
 
+### 1. Token-Efficient Sprint Issue Listing
 When working with large sprints containing many issues, the standard `list_issues_from_sprint` tool returns full JSON responses that consume significant tokens, especially when LLMs need to analyze multiple sprints or boards. This fork adds a `list_issues_from_sprint_csv` tool that returns data in a compact CSV format, dramatically reducing token usage while preserving essential information (issue key, summary, status, assignee, estimates, fix versions, and hotfix labels).
 
+### 2. Sprint State Filtering
+The original `list_sprints_from_board` tool returns all sprints (active, closed, and future) without the ability to filter. This fork adds an optional `state` parameter that allows you to fetch only active, closed, or future sprints, reducing unnecessary data transfer and making it easier to focus on relevant sprints.
+
 **Key benefits:**
-- Reduced token consumption for sprint issue queries
+- Reduced token consumption for sprint issue queries via CSV format
 - Faster response times due to smaller payloads
 - More cost-effective for large-scale sprint analysis
+- Targeted sprint retrieval by state (active/closed/future)
 - Maintains all critical issue information in a structured format
 
 ---
@@ -85,10 +90,11 @@ For Windows:
       - `startAt` (optional number): The starting index of the returned boards.
       - `type` (optional string): The type of boards. (can be one of `scrum` or `kanban`).
 
-3.  `list_sprints_from_board`: List sprints from a board.
+3.  `list_sprints_from_board`: List sprints from a board. Can filter by state (active, closed, or future).
 
     - Required inputs:
       - `boardId` (string): The ID of the board.
+      - `state` (optional string): Filter sprints by state (can be one of `active`, `closed`, or `future`).
       - `maxResults` (optional number, max: 100): The maximum number of results to return.
       - `startAt` (optional number): The starting index of the returned boards.
 
@@ -115,8 +121,9 @@ Some example prompts you can use to interact with Jira:
 1. "Show me all Jira projects" → execute the list_projects tool to see all available projects.
 2. "What Kanban boards exist in the DEV project?" → execute the list_boards tool with the DEV project key and type parameter set to "kanban".
 3. "Show me all the sprints for board ID 123" → execute the list_sprints_from_board tool to see all sprints associated with board 123.
-4. "What issues are in sprint 456 on board 123?" → execute the list_issues_from_sprint tool to see all issues in sprint 456 on board 123.
-5. "Show me the first 50 issues from the current sprint on the Marketing board" → first execute list_boards to find the Marketing board ID, then list_sprints_from_board to find the current sprint, then list_issues_from_sprint with maxResults=50.
+4. "Show me only the active sprint for board ID 123" → execute the list_sprints_from_board tool with state parameter set to "active" to see only active sprints.
+5. "What issues are in sprint 456 on board 123?" → execute the list_issues_from_sprint tool to see all issues in sprint 456 on board 123.
+6. "Show me the first 50 issues from the current sprint on the Marketing board" → first execute list_boards to find the Marketing board ID, then list_sprints_from_board with state="active" to find the active sprint, then list_issues_from_sprint with maxResults=50.
 
 ## Development
 
