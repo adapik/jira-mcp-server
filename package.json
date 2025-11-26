@@ -1,6 +1,6 @@
 {
   "name": "@adapik/jira-mcp-server",
-  "version": "0.1.1",
+  "version": "0.1.5",
   "description": "A model context protocol server for Jira API.",
   "license": "MIT",
   "type": "module",
@@ -37,7 +37,7 @@
     "dev": "dotenvx run -- tsx watch src/app.ts",
     "build": "rolldown -c rolldown.config.ts && shx chmod +x dist/*.js",
     "build:local": "dotenvx run -f .env.production -- pnpm build",
-    "inspector": "pnpm build && npx @modelcontextprotocol/inspector dist/app.js",
+    "inspector": "pnpm build && dotenvx run -- npx @modelcontextprotocol/inspector dist/app.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier '**/*.{cjs,mjs,ts,tsx,md,json}' --ignore-path ./.gitignore --ignore-unknown --write",

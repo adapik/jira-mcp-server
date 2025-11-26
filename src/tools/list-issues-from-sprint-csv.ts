@@ -40,6 +40,12 @@ const minimalIssueSchema = z.object({
       .nullable()
       .optional(),
     labels: z.array(z.string()).optional(),
+    parent: z
+      .object({
+        key: z.string(),
+      })
+      .nullable()
+      .optional(),
   }),
 });
 
@@ -65,7 +71,7 @@ export const listIssuesFromSprintCsvInputSchema = z.object({
 export const LIST_ISSUES_FROM_SPRINT_CSV_TOOL: Tool = {
   name: "list_issues_from_sprint_csv",
   description:
-    "List issues from a sprint in compact CSV format (key, summary, status, assignee, created, original estimate in hours, fix versions, type, hotfix). Reduces token usage compared to full JSON response.",
+    "List issues from a sprint in compact CSV format (key, summary, type, status, assignee, created, original estimate in hours, fix versions, hotfix, parent_id). Reduces token usage compared to full JSON response.",
   inputSchema: zodToJsonSchema(
     listIssuesFromSprintCsvInputSchema,
   ) as Tool["inputSchema"],
@@ -93,7 +99,7 @@ export async function listIssuesFromSprintCsv(
   );
 
   // Only request the fields we need to minimize response size
-  url.searchParams.set("fields", "summary,status,assignee,created,timeoriginalestimate,fixVersions,issuetype,labels");
+  url.searchParams.set("fields", "summary,status,assignee,created,timeoriginalestimate,fixVersions,issuetype,labels,parent");
 
   if (input.startAt) url.searchParams.set("startAt", input.startAt.toString());
   if (input.maxResults)
@@ -110,7 +116,7 @@ export async function listIssuesFromSprintCsv(
   }
 
   // Convert to CSV format
-  const header = "Key,Summary,Type,Status,Assignee,Created,Original Estimate (hours),Fix Versions,Hotfix";
+  const header = "Key,Summary,Type,Status,Assignee,Created,Original Estimate (hours),Fix Versions,Hotfix,Parent ID";
   const rows = result.data.issues.map((issue) => {
     const key = escapeCSV(issue.key);
     const summary = escapeCSV(issue.fields.summary);
@@ -132,8 +138,9 @@ export async function listIssuesFromSprintCsv(
     )
       ? "1"
       : "0";
+    const parentId = escapeCSV(issue.fields.parent?.key);
 
-    return `${key},${summary},${type},${status},${assignee},${created},${originalEstimateHours},${fixVersions},${isHotfix}`;
+    return `${key},${summary},${type},${status},${assignee},${created},${originalEstimateHours},${fixVersions},${isHotfix},${parentId}`;
   });
 
   const csv = [header, ...rows].join("\n");
